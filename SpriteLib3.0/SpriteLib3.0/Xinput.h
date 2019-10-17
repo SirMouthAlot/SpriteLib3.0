@@ -97,7 +97,7 @@ private:
 	std::unordered_map<int, bool> m_stroke;
 };
 
-class XInputManager abstract
+class XInputManager
 {
 public:
 	XInputManager();
