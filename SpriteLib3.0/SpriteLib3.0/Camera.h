@@ -43,7 +43,8 @@ public:
 	void Orthographic(float aspectRatio,
 		float left, float right,
 		float bottom, float top,
-		float zNear, float zFar);
+		float zNear, float zFar,
+		bool adjustAspect = true);
 
 
 	//Updates the camera

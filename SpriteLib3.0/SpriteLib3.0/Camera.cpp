@@ -50,7 +50,7 @@ void Camera::Perspective(float fovy, float aspect, float zNear, float zFar)
 	m_fov.x = ToDegrees(2.f * atanf(tanf(ToRadians(m_fov.y) * 0.5f) * aspect));
 }
 
-void Camera::Orthographic(float aspectRatio, float left, float right, float bottom, float top, float zNear, float zFar)
+void Camera::Orthographic(float aspectRatio, float left, float right, float bottom, float top, float zNear, float zFar, bool adjustAspect)
 {
 	//Sets the projection type to Orthographic
 	m_projectionType = ProjType::Orthographic;
@@ -58,13 +58,28 @@ void Camera::Orthographic(float aspectRatio, float left, float right, float bott
 	float asLeft = left * aspectRatio;
 	float asRight = right * aspectRatio;
 
-	//Calculating Orthographic Projection Matrix Manually
-	m_projection = mat4(
-		vec4(2.f / (asRight - asLeft), 0.f, 0.f, -((asRight + asLeft) / (asRight - asLeft))),
-		vec4(0.f, 2.f / (top - bottom), 0.f, -((top + bottom) / (top - bottom))),
-		vec4(0.f, 0.f, -2.f / (zFar - zNear), -((zFar + zNear) / (zFar - zNear))),
-		vec4(0.f, 0.f, 0.f, 1.f)
-	);
+
+	if (!adjustAspect)
+	{
+		//Calculating Orthographic Projection Matrix Manually
+		m_projection = mat4(
+			vec4(2.f / (right - left), 0.f, 0.f, -((right + left) / (right - left))),
+			vec4(0.f, 2.f / (top - bottom), 0.f, -((top + bottom) / (top - bottom))),
+			vec4(0.f, 0.f, -2.f / (zFar - zNear), -((zFar + zNear) / (zFar - zNear))),
+			vec4(0.f, 0.f, 0.f, 1.f)
+		);
+	}
+	else
+	{
+		//Calculating Orthographic Projection Matrix Manually
+		m_projection = mat4(
+			vec4(2.f / (asRight - asLeft), 0.f, 0.f, -((asRight + asLeft) / (asRight - asLeft))),
+			vec4(0.f, 2.f / (top - bottom), 0.f, -((top + bottom) / (top - bottom))),
+			vec4(0.f, 0.f, -2.f / (zFar - zNear), -((zFar + zNear) / (zFar - zNear))),
+			vec4(0.f, 0.f, 0.f, 1.f)
+		);
+	}
+
 
 	//Set ortho size
 	m_orthoPos = vec4(left, right, bottom, top);
@@ -164,15 +179,15 @@ void Camera::SetPosition(vec3 newPosition)
 	if (m_projectionType == ProjType::Orthographic)
 	{
 		//Updates Left, Right
-		m_orthoPos.x = newPosition.x + m_orthoSize.x;
-		m_orthoPos.y = newPosition.x + m_orthoSize.y;
+		m_orthoPos.x = newPosition.x + (m_orthoSize.x * m_aspectRatio);
+		m_orthoPos.y = newPosition.x + (m_orthoSize.y * m_aspectRatio);
 
 		//Updates Top, Bottom
 		m_orthoPos.z = newPosition.y + m_orthoSize.z;
 		m_orthoPos.w = newPosition.y + m_orthoSize.w;
 
 		//Recreates the Orthographic matrix (EXPENSIVE)
-		Orthographic(m_aspectRatio, m_orthoPos.x, m_orthoPos.y, m_orthoPos.z, m_orthoPos.w, m_near, m_far);
+		Orthographic(m_aspectRatio, m_orthoPos.x, m_orthoPos.y, m_orthoPos.z, m_orthoPos.w, m_near, m_far, false);
 	}
 
 	//Makes sure to perform the Transform's version of SetPosition too
