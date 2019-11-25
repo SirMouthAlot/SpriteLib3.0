@@ -3,6 +3,8 @@
 
 #include "JSON.h"
 #include "ECS.h"
+#include "Xinput.h"
+#include <SDL2/SDL.h>
 
 
 class Scene
@@ -13,13 +15,28 @@ public:
 	~Scene() { }
 
 	void Unload();
+	//Saves the scene
+	void SaveScene();
 
 	//Each scene will need to have a different
 	//init, as each scene's contents will be different
-	virtual void InitScene(float windowWidth, float windowHeight) { printf("windowwidth: %f, windowHeight: %f", windowWidth, windowHeight); };
+	virtual void InitScene(float windowWidth, float windowHeight) { printf("windowWidth: %f, windowHeight: %f", windowWidth, windowHeight); }
 
-	//Saves the scene
-	void SaveScene();
+	virtual void Update() {}
+
+	virtual void GamepadStroke(XInputController* con) { };
+	virtual void GamepadUp(XInputController* con) { };
+	virtual void GamepadDown(XInputController* con) { };
+	virtual void GamepadStick(XInputController* con) { };
+	virtual void GamepadTrigger(XInputController* con) { };
+	virtual void KeyboardHold() { };
+	virtual void KeyboardDown() { };
+	virtual void KeyboardUp() { };
+
+	//Mouse input
+	virtual void MouseMotion(SDL_MouseMotionEvent evnt) { };
+	virtual void MouseClick(SDL_MouseButtonEvent evnt) { };
+	virtual void MouseWheel(SDL_MouseWheelEvent evnt) { };
 
 	//Get the scene registry
 	entt::registry* GetScene() const;

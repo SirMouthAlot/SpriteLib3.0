@@ -78,6 +78,8 @@ void Game::Update()
 	Timer::Update();
 	//Update the backend
 	BackEnd::Update(m_register);
+
+	m_activeScene->Update();
 }
 
 void Game::GUI()
@@ -113,7 +115,11 @@ void Game::CheckEvents()
 
 void Game::AcceptInput()
 {
+	XInputManager::Update();
+
 	//Just calls all the other input functions 
+	GamepadInput();
+
 	KeyboardHold();
 	KeyboardDown();
 	KeyboardUp();
@@ -123,18 +129,69 @@ void Game::AcceptInput()
 	Input::ResetKeys();
 }
 
+void Game::GamepadInput()
+{
+	XInputController* tempCon;
+	//Gamepad button stroked (pressed)
+	for (int i = 0; i < 3; i++)
+	{
+		if (XInputManager::ControllerConnected(i))
+		{
+			tempCon = XInputManager::GetController(i);
+			tempCon->SetStickDeadZone(0.1f);
+
+			//If the controller is connected, we run the different input types
+			GamepadStroke(tempCon);
+			GamepadUp(tempCon);
+			GamepadDown(tempCon);
+			GamepadStick(tempCon);
+			GamepadTrigger(tempCon);
+		}
+	}
+}
+
+void Game::GamepadStroke(XInputController* con)
+{
+	m_activeScene->GamepadStroke(con);
+}
+
+void Game::GamepadUp(XInputController* con)
+{
+	m_activeScene->GamepadUp(con);
+}
+
+void Game::GamepadDown(XInputController* con)
+{
+	m_activeScene->GamepadDown(con);
+}
+
+void Game::GamepadStick(XInputController* con)
+{
+	m_activeScene->GamepadStick(con);
+}
+
+void Game::GamepadTrigger(XInputController* con)
+{
+	m_activeScene->GamepadTrigger(con);
+}
+
 void Game::KeyboardHold()
 {
 	//Keyboard button held
+	m_activeScene->KeyboardHold();
 }
 
 void Game::KeyboardDown()
 {
 	//Keyboard button down
+	m_activeScene->KeyboardDown();
 }
 
 void Game::KeyboardUp()
 {
+	//Keyboard button up
+	m_activeScene->KeyboardUp();
+
 	if (Input::GetKeyUp(Key::F1))
 	{
 		if (!UI::m_isInit)
@@ -147,6 +204,8 @@ void Game::KeyboardUp()
 
 void Game::MouseMotion(SDL_MouseMotionEvent evnt)
 {
+	m_activeScene->MouseMotion(evnt);
+
 	if (m_guiActive)
 	{
 		ImGui::GetIO().MousePos = ImVec2(float(evnt.x), float(evnt.y));
@@ -163,6 +222,8 @@ void Game::MouseMotion(SDL_MouseMotionEvent evnt)
 
 void Game::MouseClick(SDL_MouseButtonEvent evnt)
 {
+	m_activeScene->MouseClick(evnt);
+
 	if (m_guiActive)
 	{
 		ImGui::GetIO().MousePos = ImVec2(float(evnt.x), float(evnt.y));
@@ -177,10 +238,13 @@ void Game::MouseClick(SDL_MouseButtonEvent evnt)
 
 void Game::MouseWheel(SDL_MouseWheelEvent evnt)
 {
+	m_activeScene->MouseWheel(evnt);
+
 	if (m_guiActive)
 	{
 		ImGui::GetIO().MouseWheel = float(evnt.y);
 	}
+
 	//Resets the enabled flag
 	m_wheel = false;
 }

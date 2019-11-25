@@ -48,6 +48,13 @@ public:
 
 	/*Input Functions*/
 	void AcceptInput();
+	void GamepadInput();
+
+	void GamepadStroke(XInputController* con);
+	void GamepadUp(XInputController* con);
+	void GamepadDown(XInputController* con);
+	void GamepadStick(XInputController* con);
+	void GamepadTrigger(XInputController* con);
 	void KeyboardHold();
 	void KeyboardDown();
 	void KeyboardUp();
